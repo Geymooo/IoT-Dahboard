@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Dashboard - Main Menu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #2E8B57 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 40px 30px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+            opacity: 0;
+        }
+
+        .dashboard-card:hover::before {
+            opacity: 1;
+            animation: shimmer 1.5s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .dashboard-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .dashboard-card:nth-child(1) .dashboard-icon {
+            animation-delay: 0s;
+        }
+
+        .dashboard-card:nth-child(2) .dashboard-icon {
+            animation-delay: 1.5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .dashboard-title {
+            color: white;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1em;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-features {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95em;
+            text-align: left;
+            list-style: none;
+            padding: 0;
+        }
+
+        .dashboard-features li {
+            padding: 5px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .dashboard-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        .footer {
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .dashboard-card {
+                padding: 30px 25px;
+            }
+            
+            .dashboard-icon {
+                font-size: 3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌟 IoT Monitoring Center</h1>
+        <p class="subtitle">Select your monitoring dashboard</p>
+        
+        <div class="dashboard-grid">
+            <!-- BSF Dashboard Card -->
+            <a href="dashboard-bsf.html" class="dashboard-card">
+                <div class="status-indicator"></div>
+                <span class="dashboard-icon">🦗</span>
+                <h3 class="dashboard-title">BSF Dashboard</h3>
+                <p class="dashboard-description">Black Soldier Fly monitoring system with environmental controls</p>
+                <ul class="dashboard-features">
+                    <li>Temperature & Humidity Monitoring</li>
+                    <li>2x Pump Control System</li>
+                    <li>2x Relay Control System</li>
+                    <li>Real-time Firebase Integration</li>
+                </ul>
+            </a>
+
+            <!-- Maggot Dashboard Card -->
+            <a href="dashboard-maggot.html" class="dashboard-card">
+                <div class="status-indicator"></div>
+                <span class="dashboard-icon">🌱</span>
+                <h3 class="dashboard-title">Maggot Dashboard</h3>
+                <p class="dashboard-description">Maggot cultivation soil monitoring with advanced analytics</p>
+                <ul class="dashboard-features">
+                    <li>Soil Moisture Monitoring</li>
+                    <li>Soil pH Level Monitoring</li>
+                    <li>2x Relay Control System</li>
+                    <li>Smart Quality Assessment</li>
+                </ul>
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>🔗 Powered by Firebase Realtime Database | ESP32 NodeMCU</p>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity to the cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.dashboard-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.background = 'rgba(255, 255, 255, 0.25)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.background = 'rgba(255, 255, 255, 0.2)';
+                });
+            });
+        });
+
+        console.log('IoT Main Menu loaded successfully!');
+    </script>
+</body>
+</html>

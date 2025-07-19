@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Soil Monitor Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2E8B57 0%, #228B22 50%, #6B8E23 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .sensor-value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .sensor-unit {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2em;
+        }
+
+        .control-section {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .control-section h3 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-item {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .control-item label {
+            color: white;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 80px;
+            height: 40px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 40px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 32px;
+            width: 32px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(40px);
+        }
+
+        .status-indicator {
+            margin-top: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .status-on {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .status-off {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .timestamp {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .connection-status {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .connected {
+            background-color: rgba(76, 175, 80, 0.3);
+            color: #000000;
+        }
+
+        .disconnected {
+            background-color: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+
+        .error-value {
+            color: #ff6b6b !important;
+        }
+
+        .soil-quality {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .quality-excellent {
+            background-color: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+        }
+
+        .quality-good {
+            background-color: rgba(255, 235, 59, 0.3);
+            color: #F57F17;
+        }
+
+        .quality-poor {
+            background-color: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .sensor-value {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-button">
+                <span>←</span>
+                Back to Menu
+            </a>
+            <h1>🦗 BSF IoT Monitoring Dashboard</h1>
+            <div style="width: 140px;"></div> <!-- Spacer for alignment -->
+        </div>
+
+    <div class="container">
+        <h1>🌱 Maggot IoT Monitoring Dashboard</h1>
+        
+        <div id="connection-status" class="connection-status disconnected">
+            ⚠️ Connecting to Firebase...
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Soil Moisture Card -->
+            <div class="card">
+                <h3>💧 Soil Moisture</h3>
+                <div class="sensor-value" id="soilHumidity">--</div>
+                <div class="sensor-unit">%</div>
+                <!-- <div class="soil-quality" id="moisture-quality">Analyzing...</div> -->
+                <div class="timestamp" id="humidity-timestamp">Last updated: --</div>
+            </div>
+
+            <!-- Soil pH Card -->
+            <div class="card">
+                <h3>🧪 Soil pH</h3>
+                <div class="sensor-value" id="soilPH">--</div>
+                <div class="sensor-unit">pH</div>
+                <!-- <div class="soil-quality" id="ph-quality">Analyzing...</div> -->
+                <div class="timestamp" id="ph-timestamp">Last updated: --</div>
+            </div>
+        </div>
+
+        <!-- 2-Channel Relay Controls -->
+        <div class="control-section">
+            <h3>🔌 Relay Controls</h3>
+            <div class="controls">
+                <div class="control-item">
+                    <label for="relay1">Relay 1</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="relay1" onchange="toggleRelay(1, this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="status-indicator status-off" id="relay1-status">OFF</div>
+                </div>
+
+                <div class="control-item">
+                    <label for="relay2">Relay 2</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="relay2" onchange="toggleRelay(2, this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="status-indicator status-off" id="relay2-status">OFF</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Information
+        <div class="control-section">
+            <h3>📊 System Information</h3>
+            <div style="color: white; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <div>
+                    <strong>📱 Device:</strong> ESP8266 NodeMCU
+                </div>
+                <div>
+                    <strong>🔧 Relay Module:</strong> 2-Channel 5V
+                </div>
+                <div>
+                    <strong>🌐 Connection:</strong> Firebase Realtime Database
+                </div>
+                <div>
+                    <strong>📋 Google Sheets:</strong> Data Logging Active
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+    <script>
+        // Firebase configuration - GANTI dengan config Firebase Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJhEtJmWQRb5s9nILVSGrVnLk8uZvnDck",
+            authDomain: "maggot-199a1.firebaseapp.com",
+            databaseURL: "https://maggot-199a1-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "maggot-199a1",
+            storageBucket: "maggot-199a1.firebasestorage.app",
+            messagingSenderId: "163376003463",
+            appId: "1:163376003463:web:63cf566939dfe43095bb22",
+            measurementId: "G-5CNCE2NX9S"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        let isConnected = false;
+
+        // Connection status
+        database.ref('.info/connected').on('value', function(snapshot) {
+            isConnected = snapshot.val();
+            const statusElement = document.getElementById('connection-status');
+            if (isConnected) {
+                statusElement.className = 'connection-status connected';
+                statusElement.innerHTML = '✅ Connected to Firebase';
+            } else {
+                statusElement.className = 'connection-status disconnected';
+                statusElement.innerHTML = '⚠️ Disconnected from Firebase';
+            }
+        });
+
+        // Listen for soil sensor data
+        database.ref('sensors').on('value', function(snapshot) {
+            const data = snapshot.val();
+            if (data) {
+                // Update soil humidity
+                if (data.soil_humidity !== undefined) {
+                    const humidityElement = document.getElementById('soilHumidity');
+                    const qualityElement = document.getElementById('moisture-quality');
+                    
+                    if (data.soil_humidity === -999.0) {
+                        humidityElement.textContent = 'ERROR';
+                        humidityElement.className = 'sensor-value error-value';
+                        qualityElement.textContent = 'Sensor Error';
+                        qualityElement.className = 'soil-quality quality-poor';
+                    } else {
+                        humidityElement.textContent = data.soil_humidity.toFixed(1);
+                        humidityElement.className = 'sensor-value';
+                        updateMoistureQuality(data.soil_humidity);
+                    }
+                    document.getElementById('humidity-timestamp').textContent = 
+                        'Last updated: ' + new Date().toLocaleTimeString();
+                }
+
+                // Update soil pH
+                if (data.soil_pH !== undefined) {
+                    const pHElement = document.getElementById('soilPH');
+                    const qualityElement = document.getElementById('ph-quality');
+                    
+                    if (data.soil_pH === -999.0) {
+                        pHElement.textContent = 'ERROR';
+                        pHElement.className = 'sensor-value error-value';
+                        qualityElement.textContent = 'Sensor Error';
+                        qualityElement.className = 'soil-quality quality-poor';
+                    } else {
+                        pHElement.textContent = data.soil_pH.toFixed(1);
+                        pHElement.className = 'sensor-value';
+                        updatePHQuality(data.soil_pH);
+                    }
+                    document.getElementById('ph-timestamp').textContent = 
+                        'Last updated: ' + new Date().toLocaleTimeString();
+                }
+            }
+        });
+
+        // Listen for relay status changes
+        database.ref('controls/relay1').on('value', function(snapshot) {
+            const status = snapshot.val();
+            updateControlUI('relay1', status);
+        });
+
+        database.ref('controls/relay2').on('value', function(snapshot) {
+            const status = snapshot.val();
+            updateControlUI('relay2', status);
+        });
+
+        // function updateMoistureQuality(moisture) {
+        //     const qualityElement = document.getElementById('moisture-quality');
+        //     if (moisture >= 60) {
+        //         qualityElement.textContent = 'Excellent - Well Watered';
+        //         qualityElement.className = 'soil-quality quality-excellent';
+        //     } else if (moisture >= 30) {
+        //         qualityElement.textContent = 'Good - Adequate Moisture';
+        //         qualityElement.className = 'soil-quality quality-good';
+        //     } else {
+        //         qualityElement.textContent = 'Poor - Needs Watering';
+        //         qualityElement.className = 'soil-quality quality-poor';
+        //     }
+        // }
+
+        // function updatePHQuality(ph) {
+        //     const qualityElement = document.getElementById('ph-quality');
+        //     if (ph >= 6.0 && ph <= 7.5) {
+        //         qualityElement.textContent = 'Excellent - Optimal pH';
+        //         qualityElement.className = 'soil-quality quality-excellent';
+        //     } else if ((ph >= 5.5 && ph < 6.0) || (ph > 7.5 && ph <= 8.0)) {
+        //         qualityElement.textContent = 'Good - Acceptable pH';
+        //         qualityElement.className = 'soil-quality quality-good';
+        //     } else {
+        //         qualityElement.textContent = 'Poor - pH Adjustment Needed';
+        //         qualityElement.className = 'soil-quality quality-poor';
+        //     }
+        // }
+
+        function toggleRelay(relayNumber, status) {
+            database.ref(`controls/relay${relayNumber}`).set(status)
+                .then(() => {
+                    console.log(`Relay ${relayNumber} set to ${status ? 'ON' : 'OFF'}`);
+                })
+                .catch((error) => {
+                    console.error('Error updating relay:', error);
+                    alert('Error controlling relay. Please try again.');
+                });
+        }
+
+        function updateControlUI(controlId, status) {
+            const checkbox = document.getElementById(controlId);
+            const statusElement = document.getElementById(`${controlId}-status`);
+            
+            if (checkbox && statusElement) {
+                checkbox.checked = status;
+                statusElement.textContent = status ? 'ON' : 'OFF';
+                statusElement.className = status ? 'status-indicator status-on' : 'status-indicator status-off';
+            }
+        }
+
+        // Initial load message
+        console.log('IoT Soil Monitor Dashboard loaded successfully!');
+    </script>
+</body>
+</html>
