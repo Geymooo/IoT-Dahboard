@@ -228,8 +228,41 @@
             color: #f44336;
         }
 
+        .device-status {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .device-online {
+            background-color: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+        }
+
+        .device-offline {
+            background-color: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+            border: 2px solid #f44336;
+        }
+
         .error-value {
             color: #ff6b6b !important;
+        }
+
+        .disabled-controls {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .data-age-info {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8em;
+            margin-top: 5px;
         }
 
         @media (max-width: 768px) {
@@ -254,15 +287,17 @@
                 <span>←</span>
                 Back to Menu
             </a>
-            <!-- <h1>🦗 BSF IoT Monitoring Dashboard</h1> -->
             <div style="width: 140px;"></div> <!-- Spacer for alignment -->
         </div>
 
-    <div class="container">
         <h1>🦗 BSF IoT Monitoring Dashboard</h1>
         
         <div id="connection-status" class="connection-status disconnected">
             ⚠️ Connecting to Firebase...
+        </div>
+
+        <div id="device-status" class="device-status device-offline">
+            🔴 Device Status: OFFLINE (No data received)
         </div>
 
         <div class="dashboard-grid">
@@ -271,7 +306,8 @@
                 <h3>🌡️ Temperature</h3>
                 <div class="sensor-value" id="temperature">--</div>
                 <div class="sensor-unit">°C</div>
-                <div class="timestamp" id="temp-timestamp">Last updated: --</div>
+                <!-- <div class="timestamp" id="temp-timestamp">Last updated: --</div>
+                <div class="data-age-info" id="temp-age">--</div> -->
             </div>
 
             <!-- Humidity Card -->
@@ -279,12 +315,13 @@
                 <h3>💧 Humidity</h3>
                 <div class="sensor-value" id="humidity">--</div>
                 <div class="sensor-unit">%</div>
-                <div class="timestamp" id="humidity-timestamp">Last updated: --</div>
+                <!-- <div class="timestamp" id="humidity-timestamp">Last updated: --</div>
+                <div class="data-age-info" id="humidity-age">--</div> -->
             </div>
         </div>
 
         <!-- Pump Controls -->
-        <div class="control-section">
+        <div class="control-section" id="pump-controls">
             <h3>💧 Pump Controls</h3>
             <div class="controls">
                 <div class="control-item">
@@ -308,7 +345,7 @@
         </div>
 
         <!-- Relay Controls -->
-        <div class="control-section">
+        <div class="control-section" id="relay-controls">
             <h3>🔌 Relay Controls</h3>
             <div class="controls">
                 <div class="control-item">
@@ -333,7 +370,7 @@
     </div>
 
     <script>
-        // Firebase configuration - GANTI dengan config Firebase Anda
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCEYe3ke1cJawM9bDTaU2cSCPrEhfMEzbw",
             authDomain: "lalat-201f2.firebaseapp.com",
@@ -350,6 +387,10 @@
         const database = firebase.database();
         
         let isConnected = false;
+        let deviceOnline = false;
+        
+        // Device timeout configuration
+        const SENSOR_TIMEOUT = 120000; // 2 menit dalam milliseconds
 
         // Connection status
         database.ref('.info/connected').on('value', function(snapshot) {
@@ -363,6 +404,72 @@
                 statusElement.innerHTML = '⚠️ Disconnected from Firebase';
             }
         });
+
+        // Monitor device status berdasarkan timestamp
+        database.ref('sensors/timestamp').on('value', function(snapshot) {
+            const timestamp = snapshot.val();
+            if (timestamp) {
+                const now = Date.now();
+                const dataAge = now - parseInt(timestamp);
+                
+                if (dataAge > SENSOR_TIMEOUT) {
+                    setDeviceOffline();
+                } else {
+                    setDeviceOnline();
+                }
+                
+                // Update data age info
+                updateDataAge(dataAge);
+            } else {
+                setDeviceOffline();
+            }
+        });
+
+        function setDeviceOnline() {
+            if (!deviceOnline) {
+                deviceOnline = true;
+                const statusElement = document.getElementById('device-status');
+                statusElement.className = 'device-status device-online';
+                statusElement.innerHTML = '🟢 Device Status: ONLINE';
+                
+                // Enable controls
+                document.getElementById('pump-controls').classList.remove('disabled-controls');
+                document.getElementById('relay-controls').classList.remove('disabled-controls');
+                
+                console.log('Device is ONLINE');
+            }
+        }
+
+        function setDeviceOffline() {
+            if (deviceOnline) {
+                deviceOnline = false;
+                const statusElement = document.getElementById('device-status');
+                statusElement.className = 'device-status device-offline';
+                statusElement.innerHTML = '🔴 Device Status: OFFLINE (Last data > 2 minutes ago)';
+                
+                // Disable controls
+                document.getElementById('pump-controls').classList.add('disabled-controls');
+                document.getElementById('relay-controls').classList.add('disabled-controls');
+                
+                console.log('Device is OFFLINE');
+            }
+        }
+
+        function updateDataAge(ageInMs) {
+            const ageInSeconds = Math.floor(ageInMs / 1000);
+            const ageInMinutes = Math.floor(ageInSeconds / 60);
+            
+            let ageText;
+            if (ageInMinutes > 0) {
+                ageText = `Data age: ${ageInMinutes} minutes ago`;
+            } else {
+                ageText = `Data age: ${ageInSeconds} seconds ago`;
+            }
+            
+            // Update age info for both sensors
+            document.getElementById('temp-age').textContent = ageText;
+            document.getElementById('humidity-age').textContent = ageText;
+        }
 
         // Listen for sensor data
         database.ref('sensors').on('value', function(snapshot) {
@@ -421,6 +528,13 @@
         });
 
         function togglePump(pumpNumber, status) {
+            if (!deviceOnline) {
+                alert('Cannot control pump: Device is offline');
+                // Reset checkbox state
+                document.getElementById(`pump${pumpNumber}`).checked = !status;
+                return;
+            }
+            
             database.ref(`controls/pump${pumpNumber}`).set(status)
                 .then(() => {
                     console.log(`Pump ${pumpNumber} set to ${status ? 'ON' : 'OFF'}`);
@@ -428,10 +542,19 @@
                 .catch((error) => {
                     console.error('Error updating pump:', error);
                     alert('Error controlling pump. Please try again.');
+                    // Reset checkbox state
+                    document.getElementById(`pump${pumpNumber}`).checked = !status;
                 });
         }
 
         function toggleRelay(relayNumber, status) {
+            if (!deviceOnline) {
+                alert('Cannot control relay: Device is offline');
+                // Reset checkbox state
+                document.getElementById(`relay${relayNumber}`).checked = !status;
+                return;
+            }
+            
             database.ref(`controls/relay${relayNumber}`).set(status)
                 .then(() => {
                     console.log(`Relay ${relayNumber} set to ${status ? 'ON' : 'OFF'}`);
@@ -439,6 +562,8 @@
                 .catch((error) => {
                     console.error('Error updating relay:', error);
                     alert('Error controlling relay. Please try again.');
+                    // Reset checkbox state
+                    document.getElementById(`relay${relayNumber}`).checked = !status;
                 });
         }
 
@@ -454,7 +579,7 @@
         }
 
         // Initial load message
-        console.log('IoT Dashboard loaded successfully!');
+        console.log('IoT Dashboard with device monitoring loaded successfully!');
     </script>
 </body>
 </html>
