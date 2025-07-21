@@ -336,7 +336,7 @@
                 <h3>🌡️ Temperature</h3>
                 <div class="sensor-value" id="temperature">--</div>
                 <div class="sensor-unit">°C</div>
-                <div class="timestamp" id="temp-timestamp">Last updated: --</div>
+                <div class="timestamp" id="temp-timestamp">Waktu: --</div>
                 <div class="offline-indicator" id="temp-offline" style="display: none;">OFFLINE</div>
             </div>
 
@@ -345,7 +345,7 @@
                 <h3>💧 Humidity</h3>
                 <div class="sensor-value" id="humidity">--</div>
                 <div class="sensor-unit">%</div>
-                <div class="timestamp" id="humidity-timestamp">Last updated: --</div>
+                <div class="timestamp" id="humidity-timestamp">Waktu: --</div>
                 <div class="offline-indicator" id="humidity-offline" style="display: none;">OFFLINE</div>
             </div>
         </div>
@@ -422,8 +422,8 @@
         let lastTimestamp = null;
         let iotOffline = false;
         
-        // Timeout untuk deteksi offline (30 detik)
-        const OFFLINE_TIMEOUT = 10000; // 30 seconds
+        // Timeout untuk deteksi offline (5 detik)
+        const OFFLINE_TIMEOUT = 5000; // 5 seconds
 
         // Connection status
         database.ref('.info/connected').on('value', function(snapshot) {
@@ -459,7 +459,7 @@
                         tempElement.className = 'sensor-value';
                     }
                     document.getElementById('temp-timestamp').textContent = 
-                        'Last updated: ' + new Date().toLocaleTimeString();
+                        'Waktu: ' + new Date().toLocaleTimeString();
                 }
 
                 // Update humidity
@@ -473,7 +473,7 @@
                         humidityElement.className = 'sensor-value';
                     }
                     document.getElementById('humidity-timestamp').textContent = 
-                        'Last updated: ' + new Date().toLocaleTimeString();
+                        'Waktu: ' + new Date().toLocaleTimeString();
                 }
             }
         });
@@ -524,7 +524,7 @@
             iotOffline = true;
             const statusElement = document.getElementById('iot-status');
             statusElement.className = 'iot-status iot-offline';
-            statusElement.innerHTML = '📡 IoT Device: OFFLINE ⚠️ (No data for more than 30 seconds)';
+            statusElement.innerHTML = '📡 IoT Device: OFFLINE ⚠️';
             
             // Tampilkan indikator offline
             document.getElementById('temp-offline').style.display = 'block';
