@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -190,11 +191,11 @@
             border-radius: 50%;
         }
 
-        input:checked + .slider {
+        input:checked+.slider {
             background-color: #4CAF50;
         }
 
-        input:checked + .slider:before {
+        input:checked+.slider:before {
             transform: translateX(40px);
         }
 
@@ -258,8 +259,16 @@
         }
 
         @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.5; }
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0.5;
+            }
         }
 
         .iot-status {
@@ -285,9 +294,17 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         .controls.disabled {
@@ -322,17 +339,18 @@
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .controls {
                 flex-direction: column;
             }
-            
+
             .sensor-value {
                 font-size: 2.5em;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -343,8 +361,8 @@
             <div style="width: 140px;"></div>
         </div>
 
-        <h1>🌱 Maggot IoT Monitoring Dashboard PERTAMA</h1>
-        
+        <h1>🌱 Maggot IoT Monitoring Dashboard KEDUA</h1>
+
         <div id="connection-status" class="connection-status disconnected">
             ⚠️ Connecting to Firebase...
         </div>
@@ -402,29 +420,28 @@
     <script>
         // Firebase configuration - GANTI dengan config Firebase Anda
         const firebaseConfig = {
-            apiKey: "AIzaSyBJhEtJmWQRb5s9nILVSGrVnLk8uZvnDck",
-            authDomain: "maggot-199a1.firebaseapp.com",
-            databaseURL: "https://maggot-199a1-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "maggot-199a1",
-            storageBucket: "maggot-199a1.firebasestorage.app",
-            messagingSenderId: "163376003463",
-            appId: "1:163376003463:web:63cf566939dfe43095bb22",
-            measurementId: "G-5CNCE2NX9S"
+            apiKey: "AIzaSyAJl_eKtcwx2IqweMxgWJaSg6hkvoQJHx8",
+            authDomain: "maggot2.firebaseapp.com",
+            databaseURL: "https://maggot2-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "maggot2",
+            storageBucket: "maggot2.firebasestorage.app",
+            messagingSenderId: "197713913343",
+            appId: "1:197713913343:web:577abfa32ed2db99d6f3ca"
         };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        
+
         let isConnected = false;
         let lastTimestamp = null;
         let iotOffline = false;
-        
+
         // Timeout untuk deteksi offline (5 detik)
         const OFFLINE_TIMEOUT = 5000; // 5 seconds
 
         // Connection status
-        database.ref('.info/connected').on('value', function(snapshot) {
+        database.ref('.info/connected').on('value', function (snapshot) {
             isConnected = snapshot.val();
             const statusElement = document.getElementById('connection-status');
             if (isConnected) {
@@ -437,7 +454,7 @@
         });
 
         // Listen for soil sensor data
-        database.ref('sensors').on('value', function(snapshot) {
+        database.ref('sensors').on('value', function (snapshot) {
             const data = snapshot.val();
             if (data) {
                 // Update timestamp dan cek status IoT
@@ -449,7 +466,7 @@
                 // Update soil humidity
                 if (data.soil_humidity !== undefined) {
                     const humidityElement = document.getElementById('soilHumidity');
-                    
+
                     if (data.soil_humidity === -999.0) {
                         humidityElement.textContent = 'ERROR';
                         humidityElement.className = 'sensor-value error-value';
@@ -457,14 +474,14 @@
                         humidityElement.textContent = data.soil_humidity.toFixed(1);
                         humidityElement.className = 'sensor-value';
                     }
-                    document.getElementById('humidity-timestamp').textContent = 
+                    document.getElementById('humidity-timestamp').textContent =
                         'Waktu: ' + new Date().toLocaleTimeString();
                 }
 
                 // Update soil pH
                 if (data.soil_pH !== undefined) {
                     const pHElement = document.getElementById('soilPH');
-                    
+
                     if (data.soil_pH === -999.0) {
                         pHElement.textContent = 'ERROR';
                         pHElement.className = 'sensor-value error-value';
@@ -472,7 +489,7 @@
                         pHElement.textContent = data.soil_pH.toFixed(1);
                         pHElement.className = 'sensor-value';
                     }
-                    document.getElementById('ph-timestamp').textContent = 
+                    document.getElementById('ph-timestamp').textContent =
                         'Waktu: ' + new Date().toLocaleTimeString();
                 }
             }
@@ -481,11 +498,11 @@
         // Fungsi untuk mengecek status IoT berdasarkan timestamp
         function checkIoTStatus() {
             if (!lastTimestamp) return;
-            
+
             // Simpan waktu terakhir data diterima
             const now = new Date().getTime();
             localStorage.setItem('lastDataReceived', now.toString());
-            
+
             // Reset status offline karena baru saja menerima data
             setIoTOnline();
         }
@@ -496,17 +513,17 @@
             const statusElement = document.getElementById('iot-status');
             statusElement.className = 'iot-status iot-online';
             statusElement.innerHTML = '📡 IoT Device: ONLINE ✅';
-            
+
             // Hilangkan indikator offline
             document.getElementById('moisture-offline').style.display = 'none';
             document.getElementById('ph-offline').style.display = 'none';
             document.getElementById('relay-offline').style.display = 'none';
-            
+
             // Remove offline class dari cards
             document.getElementById('moisture-card').classList.remove('offline');
             document.getElementById('ph-card').classList.remove('offline');
             document.getElementById('relay-section').classList.remove('offline');
-            
+
             // Enable controls
             document.getElementById('relay-controls').classList.remove('disabled');
         }
@@ -517,20 +534,20 @@
             const statusElement = document.getElementById('iot-status');
             statusElement.className = 'iot-status iot-offline';
             statusElement.innerHTML = '📡 IoT Device: OFFLINE ⚠️';
-            
+
             // Tampilkan indikator offline
             document.getElementById('moisture-offline').style.display = 'block';
             document.getElementById('ph-offline').style.display = 'block';
             document.getElementById('relay-offline').style.display = 'block';
-            
+
             // Add offline class ke cards
             document.getElementById('moisture-card').classList.add('offline');
             document.getElementById('ph-card').classList.add('offline');
             document.getElementById('relay-section').classList.add('offline');
-            
+
             // Disable controls
             document.getElementById('relay-controls').classList.add('disabled');
-            
+
             // Update sensor values ke OFFLINE
             const humidityElement = document.getElementById('soilHumidity');
             const pHElement = document.getElementById('soilPH');
@@ -541,7 +558,7 @@
         }
 
         // Cek status IoT secara berkala
-        setInterval(function() {
+        setInterval(function () {
             const lastDataReceived = localStorage.getItem('lastDataReceived');
             if (lastDataReceived) {
                 const timeSinceLastData = Date.now() - parseInt(lastDataReceived);
@@ -552,12 +569,12 @@
         }, 5000); // Cek setiap 5 detik
 
         // Listen for relay status changes
-        database.ref('controls/relay1').on('value', function(snapshot) {
+        database.ref('controls/relay1').on('value', function (snapshot) {
             const status = snapshot.val();
             updateControlUI('relay1', status);
         });
 
-        database.ref('controls/relay2').on('value', function(snapshot) {
+        database.ref('controls/relay2').on('value', function (snapshot) {
             const status = snapshot.val();
             updateControlUI('relay2', status);
         });
@@ -569,7 +586,7 @@
                 document.getElementById(`relay${relayNumber}`).checked = !status;
                 return;
             }
-            
+
             database.ref(`controls/relay${relayNumber}`).set(status)
                 .then(() => {
                     console.log(`Relay ${relayNumber} set to ${status ? 'ON' : 'OFF'}`);
@@ -583,7 +600,7 @@
         function updateControlUI(controlId, status) {
             const checkbox = document.getElementById(controlId);
             const statusElement = document.getElementById(`${controlId}-status`);
-            
+
             if (checkbox && statusElement) {
                 checkbox.checked = status;
                 statusElement.textContent = status ? 'ON' : 'OFF';
@@ -595,4 +612,5 @@
         console.log('IoT Maggot Monitor Dashboard with Offline Detection loaded successfully!');
     </script>
 </body>
+
 </html>

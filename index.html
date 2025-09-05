@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -85,8 +86,13 @@
         }
 
         @keyframes shimmer {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
         }
 
         .dashboard-card:hover {
@@ -110,8 +116,15 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
         }
 
         .dashboard-title {
@@ -163,8 +176,17 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.2); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1.2);
+            }
         }
 
         .footer {
@@ -177,55 +199,80 @@
             .container {
                 padding: 30px 20px;
             }
-            
+
             h1 {
                 font-size: 2.5em;
             }
-            
+
             .dashboard-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
-            
+
             .dashboard-card {
                 padding: 30px 25px;
             }
-            
+
             .dashboard-icon {
                 font-size: 3em;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>🌟 IoT Monitoring Center</h1>
         <p class="subtitle">Select your monitoring dashboard</p>
-        
+
         <div class="dashboard-grid">
             <!-- BSF Dashboard Card -->
             <a href="dashboard-bsf.html" class="dashboard-card">
                 <!-- <div class="status-indicator"></div> -->
                 <span class="dashboard-icon">🦗</span>
-                <h3 class="dashboard-title">BSF Dashboard</h3>
+                <h3 class="dashboard-title">BSF Dashboard 1</h3>
                 <!-- <p class="dashboard-description">Black Soldier Fly monitoring system with environmental controls</p> -->
-                <ul class="dashboard-features">
+                <!-- <ul class="dashboard-features">
                     <li>Temperature & Humidity Monitoring</li>
                     <li>2x Pump Control System</li>
                     <li>2x Relay Control System</li>
-                </ul>
+                </ul> -->
+            </a>
+
+            <!-- BSF Dashboard Card -->
+            <a href="dashboard-bsf2.html" class="dashboard-card">
+                <!-- <div class="status-indicator"></div> -->
+                <span class="dashboard-icon">🦗</span>
+                <h3 class="dashboard-title">BSF Dashboard 2</h3>
+                <!-- <p class="dashboard-description">Black Soldier Fly monitoring system with environmental controls</p> -->
+                <!-- <ul class="dashboard-features">
+                    <li>Temperature & Humidity Monitoring</li>
+                    <li>2x Pump Control System</li>
+                    <li>2x Relay Control System</li>
+                </ul> -->
             </a>
 
             <!-- Maggot Dashboard Card -->
             <a href="dashboard-maggot.html" class="dashboard-card">
                 <!-- <div class="status-indicator"></div> -->
                 <span class="dashboard-icon">🌱</span>
-                <h3 class="dashboard-title">Maggot Dashboard</h3>
+                <h3 class="dashboard-title">Maggot Dashboard 1</h3>
                 <!-- <p class="dashboard-description">Maggot cultivation soil monitoring with advanced analytics</p> -->
-                <ul class="dashboard-features">
+                <!-- <ul class="dashboard-features">
                     <li>Soil Moisture Monitoring</li>
                     <li>2x Relay Control System</li>
-                </ul>
+                </ul> -->
+            </a>
+
+            <a href="dashboard-maggot2.html" class="dashboard-card">
+                <!-- <div class="status-indicator"></div> -->
+                <span class="dashboard-icon">🌱</span>
+                <h3 class="dashboard-title">Maggot Dashboard 2</h3>
+                <!-- <p class="dashboard-description">Maggot cultivation soil monitoring with advanced analytics</p> -->
+                <!-- <ul class="dashboard-features">
+                    <li>Soil Moisture Monitoring</li>
+                    <li>2x Relay Control System</li>
+                </ul> -->
             </a>
         </div>
 
@@ -236,15 +283,15 @@
 
     <script>
         // Add some interactivity to the cards
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const cards = document.querySelectorAll('.dashboard-card');
-            
+
             cards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
+                card.addEventListener('mouseenter', function () {
                     this.style.background = 'rgba(255, 255, 255, 0.25)';
                 });
-                
-                card.addEventListener('mouseleave', function() {
+
+                card.addEventListener('mouseleave', function () {
                     this.style.background = 'rgba(255, 255, 255, 0.2)';
                 });
             });
@@ -253,4 +300,5 @@
         console.log('IoT Main Menu loaded successfully!');
     </script>
 </body>
+
 </html>
